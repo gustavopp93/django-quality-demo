@@ -1,0 +1,102 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# The above will handle all files NOT specified below
+* text eol=lf
+
+# Source code
+*.py text diff=python
+*.html text diff=html
+*.css text
+*.js text
+*.json text
+*.xml text
+*.yaml text
+*.yml text
+*.toml text
+*.ini text
+*.cfg text
+*.conf text
+*.txt text
+*.md text
+*.rst text
+
+# Templates
+*.j2 text
+
+# Shell scripts (always use LF)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Windows scripts (always use CRLF)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Documentation
+*.markdown text
+*.mdx text
+*.tex text
+
+# Graphics
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.tif binary
+*.tiff binary
+*.ico binary
+*.svg text
+*.pdf binary
+
+# Archives
+*.7z binary
+*.gz binary
+*.tar binary
+*.zip binary
+
+# Fonts
+*.ttf binary
+*.eot binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# Audio
+*.mp3 binary
+*.ogg binary
+*.wav binary
+
+# Video
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.wmv binary
+
+# Other
+*.exe binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Python specific
+*.pyc binary
+*.pyo binary
+*.pyd binary
+
+# Django migrations should be treated as generated code
+*/migrations/*.py linguist-generated=true
+
+# Static files might be generated
+static/ linguist-generated=true
+staticfiles/ linguist-generated=true
+
+# Treat lock files as binary to avoid merge conflicts
+uv.lock binary
+Pipfile.lock binary
+poetry.lock binary
+package-lock.json binary
+yarn.lock binary
+
+# Environment files
+.env* text
