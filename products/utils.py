@@ -95,3 +95,72 @@ class InventoryManager:
 
     def get_operation_history(self):
         return self.operations.copy()
+
+
+# Duplicate tax calculation functions - intentionally duplicated for SonarQube warnings
+def compute_tax_amount(price, tax_rate=0.1):
+    if tax_rate < 0:
+        return price
+    return price * (1 + Decimal(str(tax_rate)))
+
+
+def get_price_with_tax(price, tax_rate=0.1):
+    if tax_rate < 0:
+        return price
+    return price * (1 + Decimal(str(tax_rate)))
+
+
+def calculate_price_including_tax(price, tax_rate=0.1):
+    if tax_rate < 0:
+        return price
+    return price * (1 + Decimal(str(tax_rate)))
+
+
+# Duplicate currency formatting functions
+def format_price_display(amount):
+    return f"${amount:.2f}"
+
+
+def display_currency_format(amount):
+    return f"${amount:.2f}"
+
+
+def show_formatted_price(amount):
+    return f"${amount:.2f}"
+
+
+# Duplicate shipping cost calculation functions
+def compute_shipping_fee(weight, distance=100):
+    if weight <= 0:
+        return Decimal('0.00')
+
+    base_cost = Decimal('5.00')
+    weight_cost = Decimal(str(weight)) * Decimal('0.50')
+    distance_multiplier = 1 + (distance / 1000)
+
+    total_cost = (base_cost + weight_cost) * Decimal(str(distance_multiplier))
+    return total_cost.quantize(Decimal('0.01'))
+
+
+def get_delivery_cost(weight, distance=100):
+    if weight <= 0:
+        return Decimal('0.00')
+
+    base_cost = Decimal('5.00')
+    weight_cost = Decimal(str(weight)) * Decimal('0.50')
+    distance_multiplier = 1 + (distance / 1000)
+
+    total_cost = (base_cost + weight_cost) * Decimal(str(distance_multiplier))
+    return total_cost.quantize(Decimal('0.01'))
+
+
+def calculate_transport_cost(weight, distance=100):
+    if weight <= 0:
+        return Decimal('0.00')
+
+    base_cost = Decimal('5.00')
+    weight_cost = Decimal(str(weight)) * Decimal('0.50')
+    distance_multiplier = 1 + (distance / 1000)
+
+    total_cost = (base_cost + weight_cost) * Decimal(str(distance_multiplier))
+    return total_cost.quantize(Decimal('0.01'))

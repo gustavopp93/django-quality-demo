@@ -77,3 +77,72 @@ def category_products_count(request):
         })
 
     return JsonResponse({'categories': data})
+
+
+# Duplicate function 1 - intentionally duplicated for SonarQube warnings
+def get_active_products_by_category(category_id=None):
+    products = Product.objects.filter(is_active=True).select_related('category')
+
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    return products
+
+
+# Duplicate function 2 - similar logic to above
+def fetch_active_products_with_category_filter(category_filter=None):
+    products = Product.objects.filter(is_active=True).select_related('category')
+
+    if category_filter:
+        products = products.filter(category_id=category_filter)
+
+    return products
+
+
+# Duplicate function 3 - another variation of the same logic
+def retrieve_filtered_active_products(cat_id=None):
+    products = Product.objects.filter(is_active=True).select_related('category')
+
+    if cat_id:
+        products = products.filter(category_id=cat_id)
+
+    return products
+
+
+# Duplicate JSON response building - function 1
+def build_product_json_data(product):
+    data = {
+        'id': product.id,
+        'name': product.name,
+        'price': str(product.price),
+        'stock': product.stock,
+        'status': product.get_status(),
+        'category': product.category.name,
+    }
+    return data
+
+
+# Duplicate JSON response building - function 2
+def create_product_response_data(product):
+    data = {
+        'id': product.id,
+        'name': product.name,
+        'price': str(product.price),
+        'stock': product.stock,
+        'status': product.get_status(),
+        'category': product.category.name,
+    }
+    return data
+
+
+# Duplicate JSON response building - function 3
+def generate_product_json_response(product):
+    data = {
+        'id': product.id,
+        'name': product.name,
+        'price': str(product.price),
+        'stock': product.stock,
+        'status': product.get_status(),
+        'category': product.category.name,
+    }
+    return data

@@ -131,3 +131,6 @@ Desktop.ini
 
 # Static files (uncomment if needed)
 # staticfiles/
+
+# SonarQube scanner
+.scannerwork/
