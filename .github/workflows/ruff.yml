@@ -62,3 +62,69 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [ruff-check, ruff-format, tests-sonarqube]
+    if: always()
+    steps:
+      # Echo notifications (for testing)
+      - name: Notify failure (echo)
+        if: contains(needs.*.result, 'failure')
+        run: |
+          echo "❌ Pipeline FAILED!"
+          echo "Repository: ${{ github.repository }}"
+          echo "PR: #${{ github.event.pull_request.number }}"
+          echo "Branch: ${{ github.head_ref }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Failed jobs: ${{ toJSON(needs.*.result) }}"
+
+      - name: Notify success (echo)
+        if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "✅ Pipeline SUCCESS!"
+          echo "Repository: ${{ github.repository }}"
+          echo "PR: #${{ github.event.pull_request.number }}"
+          echo "Branch: ${{ github.head_ref }}"
+          echo "Author: ${{ github.actor }}"
+
+      # Slack notifications (ready to use - uncomment and add SLACK_WEBHOOK_URL secret)
+      # - name: Notify Slack on failure
+      #   if: contains(needs.*.result, 'failure')
+      #   uses: slackapi/slack-github-action@v1.26.0
+      #   with:
+      #     webhook-type: incoming-webhook
+      #     webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     payload: |
+      #       {
+      #         "text": "❌ Pipeline failed in ${{ github.repository }}",
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "*Status:* ❌ Failed\n*Repository:* ${{ github.repository }}\n*PR:* <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>\n*Branch:* ${{ github.head_ref }}\n*Author:* ${{ github.actor }}\n*Jobs:* ${{ toJSON(needs.*.result) }}"
+      #             }
+      #           }
+      #         ]
+      #       }
+
+      # - name: Notify Slack on success
+      #   if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+      #   uses: slackapi/slack-github-action@v1.26.0
+      #   with:
+      #     webhook-type: incoming-webhook
+      #     webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #     payload: |
+      #       {
+      #         "text": "✅ Pipeline succeeded in ${{ github.repository }}",
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "*Status:* ✅ Success\n*Repository:* ${{ github.repository }}\n*PR:* <${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>\n*Branch:* ${{ github.head_ref }}\n*Author:* ${{ github.actor }}"
+      #             }
+      #           }
+      #         ]
+      #       }
