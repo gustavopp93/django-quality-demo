@@ -19,4 +19,4 @@ jobs:
         run: uv sync --only-group dev
 
       - name: Run ruff
-        run: ruff .
+        run: uv run ruff check
