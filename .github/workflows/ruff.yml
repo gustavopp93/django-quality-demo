@@ -15,6 +15,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Dummy steps
+        run: echo 'pruebita'
+
       - name: Install dev dependencies
         run: uv sync --only-group dev
 
