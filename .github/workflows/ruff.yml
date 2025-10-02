@@ -7,7 +7,7 @@ jobs:
   ruff-check:
     runs-on: ubuntu-latest
     container:
-      image: gustavopajuelo/python3.12.11:latest
+      image: ${{ vars.DOCKER_IMAGE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
   ruff-format:
     runs-on: ubuntu-latest
     container:
-      image: gustavopajuelo/python3.12.11:latest
+      image: ${{ vars.DOCKER_IMAGE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
   tests-sonarqube:
     runs-on: ubuntu-latest
     container:
-      image: gustavopajuelo/python3.12.11:latest
+      image: ${{ vars.DOCKER_IMAGE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
