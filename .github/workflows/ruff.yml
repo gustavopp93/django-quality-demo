@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  setup:
+  ruff-check:
     runs-on: ubuntu-latest
     container:
       image: gustavopajuelo/python3.12.11:latest
@@ -15,32 +15,10 @@ jobs:
       - name: Install dev dependencies
         run: uv sync --only-group dev
 
-      - name: Upload venv
-        uses: actions/upload-artifact@v4
-        with:
-          name: venv
-          path: .venv
-
-  ruff-check:
-    needs: setup
-    runs-on: ubuntu-latest
-    container:
-      image: gustavopajuelo/python3.12.11:latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download venv
-        uses: actions/download-artifact@v4
-        with:
-          name: venv
-          path: .venv
-
       - name: Run ruff check
         run: uv run ruff check
 
   ruff-format:
-    needs: setup
     runs-on: ubuntu-latest
     container:
       image: gustavopajuelo/python3.12.11:latest
@@ -48,11 +26,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download venv
-        uses: actions/download-artifact@v4
-        with:
-          name: venv
-          path: .venv
+      - name: Install dev dependencies
+        run: uv sync --only-group dev
 
       - name: Run ruff format --check
         run: uv run ruff format --check
