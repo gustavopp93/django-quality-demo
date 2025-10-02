@@ -1,25 +1,64 @@
-name: Ruff Lint
+name: Pull Request scanner
 
 on:
   pull_request:
 
-env:
-  DOCKER_IMAGE: gustavopajuelo/python3.12.11:latest
-
 jobs:
-  lint:
+  ruff-check:
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.DOCKER_IMAGE }}
+      image: ${{ vars.DOCKER_IMAGE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Dummy steps
-        run: echo 'pruebita'
+      - name: Install dev dependencies
+        run: echo 'aqui ejecutas el comando para instalar dependncias dev'
+
+      - name: Run ruff linter
+        run: echo 'aqui ejecutas el comando para linter de ruff'
+
+  ruff-format:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.DOCKER_IMAGE }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install dev dependencies
-        run: uv sync --only-group dev
+        run: echo 'aqui instalas dependencias dev'
 
-      - name: Run ruff
-        run: ruff .
+      - name: Run ruff formatter
+        run: echo 'aqui ejecutas el comando para revisar formato en ruff'
+
+  tests-sonarqube:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.DOCKER_IMAGE }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: echo 'aqui instalas dependencies'
+
+      - name: Run tests with coverage
+        run: echo 'aqui ejecutas los tests con coverage'
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage.xml
+
+      - name: Install unzip for SonarQube Scanner
+        run: apt-get update && apt-get install -y unzip
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
