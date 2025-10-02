@@ -54,6 +54,9 @@ jobs:
           name: coverage-reports
           path: coverage.xml
 
+      - name: Install unzip for SonarQube Scanner
+        run: apt-get update && apt-get install -y unzip
+
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
