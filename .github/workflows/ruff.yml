@@ -1,0 +1,22 @@
+name: Ruff Lint
+
+on:
+  pull_request:
+
+env:
+  DOCKER_IMAGE: gustavopajuelo/python3.12.11:latest
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ env.DOCKER_IMAGE }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dev dependencies
+        run: uv sync --only-group dev
+
+      - name: Run ruff
+        run: ruff .
