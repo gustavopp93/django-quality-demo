@@ -134,3 +134,9 @@ Desktop.ini
 
 # SonarQube scanner
 .scannerwork/
+
+# SBOM files
+sbom.json
+sbom.xml
+*-sbom.*
+*.sbom.*
