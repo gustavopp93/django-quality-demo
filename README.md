@@ -2,7 +2,6 @@
 
 Este es un proyecto Django de demostración diseñado para mostrar cómo configurar y ejecutar pruebas con coverage para enviar reportes a SonarQube.
 
-
 ## Características
 
 -  Django 5.2.6
