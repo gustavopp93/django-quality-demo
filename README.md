@@ -38,8 +38,11 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 # Clonar el repositorio (o navegar al directorio)
 cd django-quality-demo
 
-# Instalar dependencias
+# Instalar dependencias de producción
 uv sync
+
+# Instalar dependencias de desarrollo (pytest, ruff, etc.)
+uv sync --group dev
 
 # Aplicar migraciones
 uv run python manage.py migrate
