@@ -1,0 +1,31 @@
+# Pre-commit hooks configuration
+repos:
+  # Conventional commits validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.6.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: []  # Optional: add --force-scope to enforce scope usage
+
+  # Ruff linter and formatter via uv
+  - repo: local
+    hooks:
+      # uv run ruff format
+      - id: uv-format
+        name: uv format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+
+      # uv run ruff check
+      - id: uv-check
+        name: uv check (ruff)
+        entry: uv run ruff check
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+        args: [--fix]

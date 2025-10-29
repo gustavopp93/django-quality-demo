@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: qualitydemo-db
+    environment:
+      POSTGRES_DB: qualitydemo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: qualitydemo-web
+    command: sh -c "uv sync --frozen && uv run python manage.py migrate && uv run python manage.py collectstatic --noinput && uv run gunicorn qualitydemo.wsgi:application -c gunicorn.conf.py"
+    environment:
+      DB_ENGINE: postgresql
+      DB_NAME: qualitydemo
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: qualitydemo-nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8080:80"
+    depends_on:
+      - web
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: qualitydemo-nginx-exporter
+    command:
+      - '-nginx.scrape-uri=http://nginx:80/metrics'
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Nginx metrics via nginx-prometheus-exporter
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['localhost:9113']
+        labels:
+          service: 'qualitydemo-nginx'
+          environment: 'development'
+
+  # You can add more scrape targets here
+  # Example: Django app metrics (if you add prometheus_client)
+  # - job_name: 'django'
+  #   static_configs:
+  #     - targets: ['localhost:8000']
