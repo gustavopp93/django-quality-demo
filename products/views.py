@@ -1,10 +1,19 @@
+import structlog
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from .models import Product, Category
 
+logger = structlog.get_logger(__name__)
+
 
 def product_list(request):
+    logger.info(
+        "product_list_requested",
+        category=request.GET.get('category'),
+        search=request.GET.get('search'),
+        page=request.GET.get('page')
+    )
     products = Product.objects.filter(is_active=True).select_related('category')
 
     category_id = request.GET.get('category')
@@ -48,6 +57,7 @@ def product_detail(request, product_id):
 
 
 def product_api(request, product_id):
+    logger.info("product_api_request", product_id=product_id)
     try:
         product = Product.objects.get(id=product_id, is_active=True)
 
@@ -60,12 +70,21 @@ def product_api(request, product_id):
             'category': product.category.name,
         }
 
+        logger.info(
+            "product_api_success",
+            product_id=product_id,
+            product_name=product.name,
+            status=product.get_status(),
+            stock=product.stock
+        )
         return JsonResponse(data)
     except Product.DoesNotExist:
+        logger.warning("product_not_found", product_id=product_id)
         return JsonResponse({'error': 'Product not found'}, status=404)
 
 
 def category_products_count(request):
+    logger.info("category_products_count_request")
     categories = Category.objects.all()
     data = []
 
@@ -76,6 +95,11 @@ def category_products_count(request):
             'product_count': count
         })
 
+    logger.info(
+        "category_products_count_success",
+        total_categories=len(data),
+        categories=[c['category'] for c in data]
+    )
     return JsonResponse({'categories': data})
 
 

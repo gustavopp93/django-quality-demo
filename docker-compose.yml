@@ -68,11 +68,13 @@ services:
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
       - nginx_logs:/logs/nginx:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
     ports:
       - "9080:9080"
     depends_on:
       - nginx
+      - web
 
 volumes:
   postgres_data:
