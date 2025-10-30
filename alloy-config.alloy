@@ -1,0 +1,154 @@
+// Grafana Alloy configuration for Django Quality Demo
+// This configuration receives OTLP data from Django and forwards to Grafana stack
+
+// OTLP HTTP receiver for traces, logs and metrics from Django application
+otelcol.receiver.otlp "default" {
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.processor.batch.default.input]
+    traces  = [otelcol.processor.batch.default.input]
+  }
+}
+
+// Batch processor to optimize data sending
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+    logs    = [otelcol.exporter.loki.default.input]
+    traces  = [otelcol.exporter.otlphttp.tempo.input]
+  }
+}
+
+// Export traces to Tempo via HTTP (in grafana-demo network)
+otelcol.exporter.otlphttp "tempo" {
+  client {
+    endpoint = "http://tempo:4318"
+  }
+}
+
+// Export logs to Loki (in grafana-demo network)
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// Export metrics as Prometheus format
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+// Scrape nginx logs and send to Loki
+local.file_match "nginx_logs" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/logs/nginx/access.log",
+    job         = "nginx",
+  }]
+}
+
+loki.source.file "nginx" {
+  targets    = local.file_match.nginx_logs.targets
+  forward_to = [loki.process.nginx.receiver]
+}
+
+loki.process "nginx" {
+  stage.json {
+    expressions = {
+      time_local            = "time_local",
+      remote_addr           = "remote_addr",
+      request               = "request",
+      request_method        = "request_method",
+      request_uri           = "request_uri",
+      status                = "status",
+      body_bytes_sent       = "body_bytes_sent",
+      request_time          = "request_time",
+      http_referer          = "http_referer",
+      http_user_agent       = "http_user_agent",
+      upstream_response_time = "upstream_response_time",
+      upstream_addr         = "upstream_addr",
+    }
+  }
+
+  stage.labels {
+    values = {
+      status = "status",
+      job    = "",
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+// Scrape nginx error logs
+local.file_match "nginx_error_logs" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/logs/nginx/error.log",
+    job         = "nginx-error",
+  }]
+}
+
+loki.source.file "nginx_error" {
+  targets    = local.file_match.nginx_error_logs.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+// Django application logs from file
+local.file_match "django_logs" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/logs/django/application.log",
+    job         = "django-app",
+  }]
+}
+
+loki.source.file "django" {
+  targets    = local.file_match.django_logs.targets
+  forward_to = [loki.process.django.receiver]
+}
+
+loki.process "django" {
+  stage.json {
+    expressions = {
+      timestamp    = "timestamp",
+      level        = "level",
+      logger       = "logger",
+      event        = "event",
+      logger_name  = "logger_name",
+      category     = "category",
+      search       = "search",
+      page         = "page",
+      product_id   = "product_id",
+      product_name = "product_name",
+      status       = "status",
+      stock        = "stock",
+      total_categories = "total_categories",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level  = "",
+      logger = "",
+      event  = "",
+      job    = "",
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}

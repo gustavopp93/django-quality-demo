@@ -29,10 +29,16 @@ services:
       DB_PASSWORD: postgres
       DB_HOST: db
       DB_PORT: 5432
+      ENABLE_OTEL: "true"
+      OTEL_SERVICE_NAME: django-quality-demo
+      OTEL_SERVICE_VERSION: "0.1.0"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy:4318
+      OTEL_ENVIRONMENT: development
     volumes:
       - .:/app
       - static_volume:/app/static
       - media_volume:/app/media
+      - django_logs:/logs/django
     expose:
       - "8000"
     depends_on:
@@ -56,22 +62,24 @@ services:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: qualitydemo-nginx-exporter
     command:
-      - '-nginx.scrape-uri=http://nginx:80/metrics'
+      - '-nginx.scrape-uri=http://qualitydemo-nginx:80/metrics'
     ports:
       - "9113:9113"
     depends_on:
       - nginx
 
-  promtail:
-    image: grafana/promtail:latest
-    container_name: qualitydemo-promtail
+  alloy:
+    image: grafana/alloy:latest
+    container_name: qualitydemo-alloy
     volumes:
-      - ./promtail-config.yml:/etc/promtail/config.yml
+      - ./alloy-config.alloy:/etc/alloy/config.alloy
       - nginx_logs:/logs/nginx:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: -config.file=/etc/promtail/config.yml
+      - django_logs:/logs/django:ro
+      - ${DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     ports:
-      - "9080:9080"
+      - "12345:12345"  # Alloy UI
+      - "14318:4318"    # OTLP HTTP receiver (using 14318 to avoid conflict with Tempo)
     depends_on:
       - nginx
       - web
@@ -81,6 +89,7 @@ volumes:
   static_volume:
   media_volume:
   nginx_logs:
+  django_logs:
 
 networks:
   default:
