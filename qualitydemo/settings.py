@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import tempfile
 from pathlib import Path
 import structlog
 
@@ -166,7 +167,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/logs/django/application.log',
+            'filename': Path('/logs/django/application.log') if Path('/logs/django').exists() else Path(tempfile.gettempdir()) / 'django-application.log',
             'maxBytes': 10485760,  # 10MB
             'backupCount': 5,
             'formatter': 'json',
