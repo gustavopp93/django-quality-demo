@@ -34,6 +34,8 @@ services:
       OTEL_SERVICE_VERSION: "0.1.0"
       OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy:4318
       OTEL_ENVIRONMENT: development
+      UV_PYTHON_DOWNLOADS: "never"
+      DJANGO_SETTINGS_MODULE: qualitydemo.settings
     volumes:
       - .:/app
       - static_volume:/app/static
